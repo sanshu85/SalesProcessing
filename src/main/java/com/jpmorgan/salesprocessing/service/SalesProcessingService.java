@@ -53,25 +53,25 @@ public class SalesProcessingService {
 			outerloop: while (iterator.hasNext()) {
 
 				NotificationMessage nm = iterator.next();
-                if(nm.getMessageType() != null) {
-				switch (nm.getMessageType()) {
-				case TYPE1:
-					salesRepository.save(nm.getSale());
-					break;
-				case TYPE2:
-					salesRepository.saveMultipleSales(nm.getOccurences(), nm.getSale());
-					break;
+				if (nm.getMessageType() != null) {
+					switch (nm.getMessageType()) {
+					case TYPE1:
+						salesRepository.save(nm.getSale());
+						break;
+					case TYPE2:
+						salesRepository.saveMultipleSales(nm.getOccurences(), nm.getSale());
+						break;
 
-				case TYPE3:
-					salesRepository.adjustSales(nm.getOperation(), nm.getSale());
-					adjustmentRepository.save(new SalesAdjustment(nm.getOperation(), nm.getSale().getProductType(),
-							nm.getSale().getValue()));
-					break;
+					case TYPE3:
+						salesRepository.adjustSales(nm.getOperation(), nm.getSale());
+						adjustmentRepository.save(new SalesAdjustment(nm.getOperation(), nm.getSale().getProductType(),
+								nm.getSale().getValue()));
+						break;
 
-				default:
-					break;
+					default:
+						break;
+					}
 				}
-                }
 				count++;
 				if (count % TEN == 0) {
 					generateReport();
@@ -83,7 +83,7 @@ public class SalesProcessingService {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error while processing sales notification message",e);
+			LOGGER.error("Error while processing sales notification message", e);
 			throw new ApplicationException(SALES_PROCESSING_ERROR, e);
 		}
 		LOGGER.debug("Completed processNotification");
@@ -97,9 +97,8 @@ public class SalesProcessingService {
 
 		System.out.println("**************************REPORT**********************************");
 		System.out.println("NO OF SALES" + "\t" + "PRODUCT" + "\t" + "TOTAL VALUE");
-		for (Report r : reportList) {
-			System.out.println(r.getSalesCount() + "\t" + r.getProductType() + "\t" + r.getTotalValue());
-		}
+		reportList.forEach(
+				r -> System.out.println(r.getSalesCount() + "\t" + r.getProductType() + "\t" + r.getTotalValue()));
 
 	}
 
@@ -110,9 +109,8 @@ public class SalesProcessingService {
 		System.out.println("************************ADJUSTMENT REPORT*************************");
 		System.out.println("OPERATION" + "\t" + "PRODUCT" + "\t" + "VALUE");
 		List<SalesAdjustment> adjustmentList = adjustmentRepository.findAll();
-		for (SalesAdjustment ad : adjustmentList) {
-			System.out.println(ad.getOperation() + "\t" + ad.getProductType() + "\t" + ad.getValue());
-		}
+		adjustmentList.forEach(
+				ad -> System.out.println(ad.getOperation() + "\t" + ad.getProductType() + "\t" + ad.getValue()));
 	}
 
 }
